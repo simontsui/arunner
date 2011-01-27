@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+
+<document>
+
+    <properties>
+        <title>ARunner</title>
+        <author>simontsui</author>
+    </properties>
+
+    <body>
+        <section name="Introduction">
+            <p>
+                ARunner is a JUnit4 test runner that run tests with AspectJ load time weaving. ARunner run standard
+                JUnit4 tests in a separate thread with a special classloader for load time weaving. Each test class is
+                instantiated in a separate classloader instance. That allow a different set of aspects to be applied
+                for each test class. All tests in the test class is run with the same classloader instance. It support
+                standard JUnit4 annotations
+                <code>@Before</code>,
+                <code>@After</code>,
+                <code>@Rule</code> and
+                <code>@Test</code> with expected exception and timeout.
+            </p>
+        </section>
+        <section name="Usage">
+            <p>
+                To run tests with ARunner, use the JUnit4
+                <code>@RunWith</code> annotation and provide a set of aspects as static inner classes in the test
+                class. The aspects are applied in memory at load time, leaving all class files intact. The classpath
+                should contains
+                <code>aspectjrt.jar</code> and
+                <code>aspectjweaver.jar</code>, in addition to
+                <code>arunner.jar</code>. An example:
+                <source xml:space="preserve">
+<span class="java-annotation">@RunWith</span> (ARunner.<span class="java-keyword">class</span>)
+<span class="java-keyword">public </span><span class="java-keyword">class</span> ARunner02Test {
+    <span class="java-annotation">@Test</span>
+    <span class="java-keyword">public </span><span class="java-keyword">void</span> testBasic02() {
+        fail();
+    }
+    <span class="java-keyword">public </span><span class="java-keyword">static </span><span class="java-keyword">aspect</span> ARunner02Aspect {
+        <span class="java-keyword">void </span><span class="java-keyword">around</span>() : execution(<span class="java-keyword">public </span><span class="java-keyword">void</span> ARunner02Test.testBasic02()) {
+            <span class="java-keyword">return</span>;
+}}}
+</source>
+                Since the test class contains aspects, the source should be compiled using
+                <code>org.aspectj.tools.ajc.Main</code> from
+                <code>aspectjtools.jar</code>
+                instead of
+                <code>javac</code>. For load time weaving, the
+                <code>-XterminateAfterCompilation</code> option should be used.
+                <code>ajc</code> can be used to compile normal java source files too, in particular when there are
+                circular references.
+            </p>
+            <p>
+                ARunner use the standard JUnit4
+                <code>Runner</code> API, so the tests can be launched just like other JUnit tests in most IDEs.
+            </p>
+        </section>
+        <section name="License">
+            <p>
+                The project is released under the EPL license, see
+                <a href="epl-v10.html">here</a> for details.
+            </p>
+        </section>
+    </body>
+</document>
